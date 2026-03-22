@@ -1,0 +1,42 @@
+<!-- templates/catalog/list.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Каталог товаров</h2>
+    <div class="row">
+        {% for p in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if p.image %}
+                    <div class="card-img-top" style="height: 200px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img src="{{ p.image.url }}" alt="{{ p.name }}"
+                             style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;">
+                    </div>
+                {% else %}
+                    <div class="bg-light text-center py-5" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ p.name }}</h5>
+                    <p class="card-text text-muted">{{ p.description|truncatechars:100 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 text-primary">{{ p.price }} ₽</span>
+                        <a href="/cart/add/{{ p.id }}/" class="btn btn-sm btn-primary">
+                            В корзину
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-center text-muted">Товаров пока нет</p>
+        </div>
+        {% endfor %}
+
+
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+
+{% extends 'base.html' %}
+{% block content %}
+
+<form method="post">
+{% csrf_token %}
+<input name="email" placeholder="email">
+<input name="password" type="password">
+<button class="btn btn-primary">Login</button>
+</form>
+
+<form method="post">
+<button class="btn btn-primary">Восстановить пароль</button>
+</form>
+
+{% endblock %}

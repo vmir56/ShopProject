@@ -1,0 +1,100 @@
+<!-- templates/start.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 text-center">
+            <h1 class="display-4 mb-4">Добро пожаловать в наш магазин!</h1>
+            <p class="lead mb-5">Лучшие товары по лучшим ценам</p>
+            
+            {% if not user.is_authenticated %}
+                <div class="row g-4">
+                    <!-- Карточка для авторизации -->
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <div class="display-1 text-primary mb-3">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                </div>
+                                <h5 class="card-title">Уже есть аккаунт?</h5>
+                                <p class="card-text text-muted">Войдите в свой личный кабинет</p>
+                                <a href="{% url 'accounts:login' %}" class="btn btn-primary">
+                                    Войти
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Карточка для регистрации -->
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <div class="display-1 text-success mb-3">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <h5 class="card-title">Новый покупатель?</h5>
+                                <p class="card-text text-muted">Зарегистрируйтесь и получайте бонусы</p>
+                                <a href="{% url 'accounts:register' %}" class="btn btn-success">
+                                    Регистрация
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Карточка для продолжения без регистрации -->
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow-sm border-warning">
+                            <div class="card-body">
+                                <div class="display-1 text-warning mb-3">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                                <h5 class="card-title">Хочу просто посмотреть</h5>
+                                <p class="card-text text-muted">Продолжите без регистрации, товары можно будет добавить в корзину позже</p>
+                                <a href="{% url 'catalog' %}" class="btn btn-warning">
+                                    В каталог
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Блок с преимуществами регистрации (для мотивации) -->
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5 class="mb-3">✨ Преимущества регистрации:</h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <i class="fas fa-gift text-primary me-2"></i>
+                                        Персональные скидки
+                                    </div>
+                                    <div class="col-md-4">
+                                        <i class="fas fa-history text-primary me-2"></i>
+                                        История заказов
+                                    </div>
+                                    <div class="col-md-4">
+                                        <i class="fas fa-heart text-primary me-2"></i>
+                                        Избранное
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% else %}
+                <!-- Для авторизованных пользователей -->
+                <div class="row">
+                    <div class="col-12">
+                        <p class="mb-4">С возвращением, <strong>{{ user.email }}</strong>!</p>
+                        <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">
+                            Перейти в каталог
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

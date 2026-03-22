@@ -1,0 +1,89 @@
+<!-- templates/cart/detail.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Корзина</h2>
+    
+    {% if cart_items %}
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        {% for item in cart_items %}
+                        <div class="row mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="col-md-2">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                                         class="img-fluid" style="max-height: 80px;">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <h5>{{ item.product.name }}</h5>
+                                <p class="text-muted">{{ item.product.price }} ₽</p>
+                                <small class="text-muted">Количество: {{ item.quantity }}</small>
+                            </div>
+                            <div class="col-md-2">
+                                <form method="post" action="{% url 'cart:update_cart' item.product.id %}">
+                                    {% csrf_token %}
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" 
+                                           min="1" class="form-control form-control-sm">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary mt-1">
+                                        Обновить
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="h6">{{ item.total_price }} ₽</span>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="{% url 'cart:remove_from_cart' item.product.id %}" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Удалить товар из корзины?')">
+                                    Удалить
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Итого</h5>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <span>Товаров (позиций):</span>
+                            <span>{{ cart_items|length }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Всего единиц:</span>
+                            <span>{{ items_count }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Сумма:</span>
+                            <span class="h5">{{ total_price }} ₽</span>
+                        </div>
+                        
+                        <a href="#" class="btn btn-success w-100">Оформить заказ</a>
+                        <a href="{% url 'cart:clear_cart' %}" class="btn btn-outline-danger w-100 mt-2"
+                           onclick="return confirm('Очистить корзину?')">
+                            Очистить корзину
+                        </a>
+                        <a href="{% url 'catalog' %}" class="btn btn-outline-secondary w-100 mt-2">
+                            Продолжить покупки
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <h4>Корзина пуста</h4>
+            <p class="text-muted">Добавьте товары из <a href="{% url 'catalog' %}">каталога</a></p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
