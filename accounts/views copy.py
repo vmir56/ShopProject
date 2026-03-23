@@ -8,8 +8,9 @@ from django.contrib import messages
 from cart.views import get_cart_items_count, migrate_session_cart_to_db
 from cart.models import Cart as DBCart
 '''
-from cart.views import SessionCart, migrate_session_cart_to_db, get_cart_items_count
+from cart.views import get_cart_items_count, migrate_session_cart_to_db
 from cart.models import Cart as DBCart
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -19,11 +20,10 @@ from django.conf import settings
 from .forms import CustomUserCreationForm
 from .models import CustomUser
 import uuid
-import sys
 #?
 from django.contrib.auth.decorators import login_required
 
-###
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('/')
@@ -35,46 +35,21 @@ def login_view(request):
 
         if user:
             if not user.is_active:
-                messages.error(request, 'Аккаунт не активирован. Проверьте почту.')
+                messages.error(request, 'Аккаунт не активирован. Проверьте почту для подтверждения.')
                 return redirect('accounts:login')
 
-            # ========== ПЕРЕНОС КОРЗИНЫ ==========
-            # Сохраняем сессионную корзину ДО входа
-            session_cart = SessionCart(request)
-            session_items_count = len(session_cart)
-            print(f"\n🛒 [LOGIN] Сессионная корзина ДО входа: {session_items_count} товаров")
-
-            # Выполняем вход
             login(request, user)
-
-            # Получаем корзину пользователя в БД
-            user_cart, created = DBCart.objects.get_or_create(user=user)
-            print(f"   👤 Корзина пользователя: {'создана' if created else 'существовала'}")
-
-            # Переносим товары
-            if session_items_count > 0:
-                transferred = migrate_session_cart_to_db(request, user_cart)
-                print(f"   ✅ Перенесено товаров: {transferred}")
-            else:
-                print(f"   ⏭️ Нет товаров для переноса")
-            # ========== КОНЕЦ ПЕРЕНОСА ==========
-
             messages.success(request, f'С возвращением, {user.email}!')
-
-            # Умный редирект
-            next_url = request.GET.get('next')
-            if next_url:
-                return redirect(next_url)
-
-            if get_cart_items_count(request) > 0:
-                return redirect('cart:cart_detail')
-
             return redirect('/')
         else:
             messages.error(request, 'Неверный email или пароль')
 
     return render(request, 'accounts/login.html')
+
 ###
+# accounts/views.py
+import sys
+
 
 def register_view(request):
     """Регистрация с отправкой письма для подтверждения"""

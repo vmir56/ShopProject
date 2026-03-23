@@ -10,42 +10,73 @@
                     <h4>Регистрация</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        {% if form.errors %}
-                            <div class="alert alert-danger">
+                    <!-- Вывод всех сообщений -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Вывод ошибок формы -->
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Ошибки при заполнении формы:</strong>
+                            <ul class="mb-0 mt-2">
                                 {% for field in form %}
                                     {% for error in field.errors %}
-                                        <p>{{ error }}</p>
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
                                     {% endfor %}
                                 {% endfor %}
                                 {% for error in form.non_field_errors %}
-                                    <p>{{ error }}</p>
+                                    <li>{{ error }}</li>
                                 {% endfor %}
-                            </div>
-                        {% endif %}
-                        
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+
                         <div class="mb-3">
                             <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
                             {{ form.email }}
+                            <div class="form-text">На этот email будет отправлена ссылка для подтверждения</div>
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.email.errors.0 }}
+                                </div>
+                            {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="{{ form.password1.id_for_label }}" class="form-label">Пароль</label>
                             {{ form.password1 }}
+                            <div class="form-text">Минимум 8 символов</div>
+                            {% if form.password1.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.password1.errors.0 }}
+                                </div>
+                            {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="{{ form.password2.id_for_label }}" class="form-label">Подтверждение пароля</label>
                             {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.password2.errors.0 }}
+                                </div>
+                            {% endif %}
                         </div>
-                        
+
                         <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
                     </form>
-                    
+
                     <hr>
-                    
+
                     <p class="text-center mb-0">
                         Уже есть аккаунт? <a href="{% url 'accounts:login' %}">Войти</a>
                     </p>

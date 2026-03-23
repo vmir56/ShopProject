@@ -130,4 +130,17 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-print(f"Рабочие каталоги: {BASE_DIR}, {MEDIA_ROOT}, {STATIC_ROOT}")
+# print(f"Рабочие каталоги: {BASE_DIR}, {MEDIA_ROOT}, {STATIC_ROOT}")
+
+# ShopProject/settings.py
+
+# Email настройки для продакшена
+EMAIL_HOST = 'smtp.gmail.com'   # 'smtp.yandex.ru' или smtp.mail.ru и т.д.
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'shoprjbox@gmail.com' # твой email
+EMAIL_HOST_PASSWORD = 'hylktuycwifctnmr'  # пароль приложения (не обычный!)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# Для разработки (письма в консоль) — всё закомментировать для продакшена
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
