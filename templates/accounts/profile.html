@@ -4,57 +4,162 @@
 {% block content %}
 <div class="container mt-4">
     <div class="row">
+        <!-- Левая колонка: информация о пользователе -->
         <div class="col-md-4">
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-body text-center">
                     <i class="fas fa-user-circle fa-4x text-primary mb-3"></i>
                     <h4>{{ user.email }}</h4>
-                    <p class="text-muted">Телефон для связи: {{ user.date_joined|date:"d.m.Y" }}</p>
-                    <p class="text-muted">Адресс доставки: {{ user.date_joined|date:"d.m.Y" }}</p>
                     <p class="text-muted">Дата регистрации: {{ user.date_joined|date:"d.m.Y" }}</p>
+                    <hr>
+                    <p><strong>Телефон:</strong> {{ user.phone|default:"не указан" }}</p>
+                    <p><strong>Адрес доставки:</strong> {{ user.address|default:"не указан" }}</p>
+                    <hr>
+                    <p class="text-muted small">
+                        {% if user.email_verified %}
+                            <span class="text-success">✓ Email подтверждён</span>
+                        {% else %}
+                            <span class="text-warning">⚠ Email не подтверждён</span>
+                        {% endif %}
+                    </p>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-body text-center">
-                    <p class="text-muted">Изменить пароль: {{ user.date_joined|date:"d.m.Y" }}</p>
-                    <p class="text-muted">Удалить аккаунт: {{ user.date_joined|date:"d.m.Y" }}</p>
+            <!-- Блок действий -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Действия</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-outline-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="fas fa-edit me-2"></i>Редактировать профиль
+                    </button>
+                    <button class="btn btn-outline-warning w-100 mb-2" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                        <i class="fas fa-key me-2"></i>Изменить пароль
+                    </button>
+                    <button class="btn btn-outline-danger w-100" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                        <i class="fas fa-trash-alt me-2"></i>Удалить аккаунт
+                    </button>
                 </div>
             </div>
         </div>
 
+        <!-- Правая колонка: корзина и заказы -->
         <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Добро пожаловать в личный кабинет!</h5>
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Корзина</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="alert alert-info">
-                                <strong>Корзина:</strong><br>
-                                В вашей корзине {{ cart_items_count }} товаров
-                            </div>
-                            <a href="{% url 'cart:cart_detail' %}" class="btn btn-primary w-100">
-                                Перейти в корзину
-                            </a>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="alert alert-success">
-                                <strong>Что можно сделать:</strong>
-                                <ul class="mt-2 mb-0">
-                                    <li>Просматривать каталог</li>
-                                    <li>Оформлять заказы</li>
-                                    <li>Отслеживать доставку</li>
-                                </ul>
-                            </div>
-                            <a href="{% url 'catalog' %}" class="btn btn-outline-primary w-100">
-                                В каталог
-                            </a>
-                        </div>
+                    <div class="alert alert-info">
+                        <strong>В вашей корзине {{ cart_items_count }} товаров</strong>
                     </div>
+                    <a href="{% url 'cart:cart_detail' %}" class="btn btn-primary w-100">
+                        Перейти в корзину
+                    </a>
                 </div>
             </div>
+
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">История заказов</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-center text-muted">У вас пока нет заказов</p>
+                    <a href="{% url 'catalog' %}" class="btn btn-outline-primary w-100">
+                        Перейти в каталог
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно: Редактирование профиля -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'accounts:profile' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактирование профиля</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="id_phone" class="form-label">Телефон</label>
+                        <input type="text" name="phone" id="id_phone"
+                               value="{{ user.phone|default:'' }}"
+                               class="form-control"
+                               placeholder="+7 (999) 123-45-67">
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_address" class="form-label">Адрес доставки</label>
+                        <textarea name="address" id="id_address"
+                                  class="form-control" rows="3"
+                                  placeholder="Город, улица, дом, квартира">{{ user.address|default:'' }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно: Изменение пароля -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'accounts:change_password' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Изменение пароля</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="password1" class="form-label">Новый пароль</label>
+                        <input type="password" name="password1" id="password1" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password2" class="form-label">Подтверждение пароля</label>
+                        <input type="password" name="password2" id="password2" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-warning">Изменить пароль</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно: Удаление аккаунта -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'accounts:delete_account_request' %}">
+                {% csrf_token %}
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Удаление аккаунта</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Внимание!</strong> Это действие необратимо.
+                    </div>
+                    <p>Вы уверены, что хотите удалить свой аккаунт? На вашу почту будет отправлено письмо с подтверждением.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-danger">Запросить удаление</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

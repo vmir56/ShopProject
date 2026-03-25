@@ -3,7 +3,6 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
-
 class Manager(BaseUserManager):
     def create_user(self, email, password=None, **extra):
         email = self.normalize_email(email)
@@ -19,19 +18,16 @@ class Manager(BaseUserManager):
         extra.setdefault('email_verified', True)
         return self.create_user(email, password, **extra)
 
-
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20, blank=True)
     address = models.CharField(max_length=255, blank=True)
-
-    is_active = models.BooleanField(default=False)  # ← по умолчанию False до подтверждения
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
-
-    # Токен для подтверждения email
     email_verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    delete_token = models.UUIDField(default=uuid.uuid4, editable=False, null=True, blank=True)  # ← добавить
 
     objects = Manager()
     USERNAME_FIELD = 'email'
@@ -39,4 +35,3 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
-

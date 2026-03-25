@@ -1,8 +1,29 @@
 # accounts/forms.py
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from .models import CustomUser
 
+class ProfileForm(forms.ModelForm):
+    """Форма редактирования профиля"""
+
+    class Meta:
+        model = CustomUser
+        fields = ['phone', 'address']
+        widgets = {
+            'phone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '+7 (999) 123-45-67'
+            }),
+            'address': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Город, улица, дом, квартира'
+            }),
+        }
+        labels = {
+            'phone': 'Телефон',
+            'address': 'Адрес доставки',
+        }
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(
