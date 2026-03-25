@@ -273,3 +273,67 @@ def logout_view(request):
     logout(request)
     messages.info(request, 'Вы вышли из системы')
     return redirect('/')
+
+
+def password_recover(request):
+    """Запрос на восстановление пароля"""
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = CustomUser.objects.get(email=email, is_active=True)
+            # Генерируем токен для сброса
+            reset_token = uuid.uuid4()
+            user.reset_token = reset_token
+            user.save()
+
+            # Ссылка для сброса
+            reset_link = request.build_absolute_uri(
+                reverse('accounts:password_reset', args=[str(reset_token)])
+            )
+
+            send_mail(
+                subject='Восстановление пароля',
+                message=f'''Здравствуйте, {user.email}!
+
+Вы запросили восстановление пароля на сайте ShopProject.
+Для установки нового пароля перейдите по ссылке:
+{reset_link}
+
+Если вы не запрашивали восстановление пароля, проигнорируйте это письмо.
+
+С уважением,
+Команда ShopProject''',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+            messages.success(request, 'Инструкции по восстановлению отправлены на ваш email.')
+            return redirect('accounts:login')
+        except CustomUser.DoesNotExist:
+            messages.error(request, 'Пользователь с таким email не найден.')
+
+    return render(request, 'accounts/password_recover.html')
+
+
+def password_reset(request, token):
+    """Установка нового пароля по токену"""
+    try:
+        user = CustomUser.objects.get(reset_token=token, is_active=True)
+    except CustomUser.DoesNotExist:
+        messages.error(request, 'Неверная или истекшая ссылка для восстановления.')
+        return redirect('accounts:recover')
+
+    if request.method == 'POST':
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if password1 and password1 == password2:
+            user.set_password(password1)
+            user.reset_token = None  # очищаем токен
+            user.save()
+            messages.success(request, 'Пароль успешно изменён! Теперь вы можете войти.')
+            return redirect('accounts:login')
+        else:
+            messages.error(request, 'Пароли не совпадают')
+
+    return render(request, 'accounts/password_reset.html', {'token': token})
